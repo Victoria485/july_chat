@@ -22,7 +22,7 @@ public class ChatMessageService {
     }
 
     public boolean isConnected() {
-        return this.networkService != null && this.networkService.getSocket().isConnected();
+        return this.networkService != null && !this.networkService.getSocket().isClosed();
     }
 
     public void send(String message) {
@@ -32,4 +32,5 @@ public class ChatMessageService {
     public void receive(String message) {
         messageProcessor.processMessage(message);
     }
+
 }

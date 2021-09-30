@@ -2,6 +2,7 @@ package ru.geekbrains.july_chat.chat_app.net;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -22,10 +23,13 @@ public class NetworkService {
 
     public void readMessages() {
         Thread t = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted() && !socket.isClosed()) {
                 try {
                     String message = in.readUTF();
                     chatMessageService.receive(message);
+                } catch (EOFException e) {
+                    System.out.println("Connection lost");
+                    close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -42,7 +46,18 @@ public class NetworkService {
             e.printStackTrace();
         }
     }
+
     public Socket getSocket() {
         return socket;
+    }
+
+    public void close() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

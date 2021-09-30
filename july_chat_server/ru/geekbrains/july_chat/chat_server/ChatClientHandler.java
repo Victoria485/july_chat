@@ -7,10 +7,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class ChatClientHandler {
     public static final String REGEX = "%&%";
+    private static final long AUTH_TIMEOUT = 12_000;
     private Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
@@ -34,7 +37,7 @@ public class ChatClientHandler {
         handlerThread = new Thread(() -> {
             authorize();
             try {
-                while (!Thread.currentThread().isInterrupted() && socket.isConnected()) {
+                while (!Thread.currentThread().isInterrupted() && !socket.isClosed()) {
                     String message = in.readUTF();
                     handleMessage(message);
                 }
@@ -49,12 +52,31 @@ public class ChatClientHandler {
 
     //auth: lllll ppppp
     private void authorize() {
-        while (true) {
+        Timer timer = new Timer(true);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (this) {
+                        if (currentUser == null) {
+                            sendMessage("ERROR:" + REGEX + "Authentication timeout!\nPlease, try again later!");
+                            Thread.sleep(50);
+                            socket.close();
+                        }
+                    }
+                } catch (InterruptedException | IOException e) {
+                    e.getStackTrace();
+                }
+            }
+        }, AUTH_TIMEOUT);
+        while (!socket.isClosed()) {
             try {
                 String message = in.readUTF();
                 if (message.startsWith("/auth") || message.startsWith("/register")) {
                     if (handleMessage(message)) break;
                 }
+            } catch (SocketException e) {
+                System.out.println("Socket closed with timeout");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -91,13 +113,19 @@ public class ChatClientHandler {
                     sendMessage("register_ok:");
                     break;
                 case "/auth":
-                    this.currentUser = server.getAuthService().getNicknameByLoginAndPassword(parsed[1], parsed[2]);
-                    if (server.isNicknameBusy(currentUser)) {
-                        sendMessage("ERROR:" + REGEX + "U're clone!");
-                    } else {
-                        this.server.addAuthorizedClientToList(this);
-                        sendMessage("authok:" + REGEX + this.currentUser);
-                        return true;
+                    try {
+                        String username = server.getAuthService().getNicknameByLoginAndPassword(parsed[1], parsed[2]);
+                        if (server.isNicknameBusy(username)) {
+                            sendMessage("ERROR:" + REGEX + "U're clone!");
+                        } else {
+                            this.currentUser = username;
+                            this.server.addAuthorizedClientToList(this);
+                            sendMessage("authok:" + REGEX + this.currentUser);
+                            return true;
+                        }
+                    } catch (UserNotFoundException e) {
+                        System.out.println("Auth error");
+                        sendMessage("ERROR:" + REGEX + "Wrong username or pass");
                     }
                     break;
                 default:
