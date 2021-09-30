@@ -2,28 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>july_chat</artifactId>
+        <groupId>ru.geekbrains</groupId>
+        <version>0.0.1</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.geekbrains</groupId>
-    <artifactId>july_chat</artifactId>
-    <packaging>pom</packaging>
-    <version>0.0.1</version>
-    <modules>
-        <module>july_chat_server</module>
-        <module>july_chat_client</module>
-    </modules>
+    <artifactId>july_chat_server</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.34.0</version>
-        </dependency>
-    </dependencies>
 
 </project>
