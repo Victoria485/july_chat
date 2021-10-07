@@ -3,6 +3,8 @@ package ru.geekbrains.july_chat.chat_server;
 import ru.geekbrains.july_chat.chat_server.auth.AuthService;
 import ru.geekbrains.july_chat.chat_server.auth.DatabaseAuthService;
 import ru.geekbrains.july_chat.chat_server.auth.InMemoryAuthService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,11 +18,13 @@ public class JulyChatServer {
     private static final int PORT = 8089;
     private AuthService authService;
     private Map<String, ChatClientHandler> handlers;
+    private ExecutorService executorService;
 
     public JulyChatServer() {
 //        this.authService = new InMemoryAuthService();
         this.authService = new DatabaseAuthService();
         this.handlers = new HashMap<>();
+        this.executorService = Executors.newCachedThreadPool();
     }
 
     public void start() {
@@ -37,6 +41,7 @@ public class JulyChatServer {
             e.printStackTrace();
         } finally {
             authService.stop();
+            executorService.shutdownNow();
         }
     }
 
@@ -81,6 +86,10 @@ public class JulyChatServer {
         message = String.format("[%s] -> [%s]: %s", sender, recipient, message);
         handler.sendMessage(message);
         senderHandler.sendMessage(message);
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     public boolean isNicknameBusy(String nickname) {
