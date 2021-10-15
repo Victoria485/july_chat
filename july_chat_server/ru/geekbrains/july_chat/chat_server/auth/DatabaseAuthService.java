@@ -4,7 +4,6 @@ import ru.geekbrains.july_chat.chat_server.db.ClientsDatabaseService;
 
 import java.sql.SQLException;
 
-
 public class DatabaseAuthService implements AuthService {
     private ClientsDatabaseService dbService;
 

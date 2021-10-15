@@ -29,12 +29,12 @@ public class JulyChatServer {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server start!");
+            Logging.log.info("Server start!");
             authService.start();
             while (true) {
-                System.out.println("Waiting for connection......");
+                Logging.log.info("Waiting for connection......");
                 Socket socket = serverSocket.accept();
-                System.out.println("Client connected");
+                Logging.log.info("Client connected");
                 new ChatClientHandler(socket, this).handle();
             }
         } catch (IOException e) {

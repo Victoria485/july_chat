@@ -27,7 +27,7 @@ public class ChatClientHandler {
             this.socket = socket;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-            System.out.println("Handler created");
+            Logging.log.info("Handler created");
             this.server = server;
             this.executorService = server.getExecutorService();
         } catch (IOException e) {
@@ -77,7 +77,7 @@ public class ChatClientHandler {
                     if (handleMessage(message)) break;
                 }
             } catch (SocketException e) {
-                System.out.println("Socket closed with timeout");
+                Logging.log.info("Socket closed with timeout");
             } catch (IOException e) {
                 e.printStackTrace();
             }
