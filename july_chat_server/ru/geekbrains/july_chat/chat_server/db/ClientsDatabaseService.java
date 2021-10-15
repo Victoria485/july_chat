@@ -1,5 +1,6 @@
 package ru.geekbrains.july_chat.chat_server.db;
 
+import ru.geekbrains.july_chat.chat_server.Logging;
 import ru.geekbrains.july_chat.chat_server.error.UserNotFoundException;
 
 import java.sql.*;
@@ -70,13 +71,13 @@ public class ClientsDatabaseService {
     private void connect() throws ClassNotFoundException, SQLException {
         Class.forName(DRIVER);
         connection = DriverManager.getConnection(CONNECTION);
-        System.out.println("Connected to db!");
+        Logging.log.info("Connected to db!");
     }
 
     public void closeConnection() {
         try {
             if (connection != null) connection.close();
-            System.out.println("Disconnected from db!");
+            Logging.log.info("Disconnected from db!");
         } catch (SQLException e) {
             e.printStackTrace();
         }

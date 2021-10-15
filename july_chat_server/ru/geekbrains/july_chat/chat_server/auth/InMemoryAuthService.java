@@ -1,5 +1,6 @@
 package ru.geekbrains.july_chat.chat_server.auth;
 
+import ru.geekbrains.july_chat.chat_server.Logging;
 import ru.geekbrains.july_chat.chat_server.error.BadRequestException;
 import ru.geekbrains.july_chat.chat_server.error.UserNotFoundException;
 import ru.geekbrains.july_chat.chat_server.error.WrongCredentialsException;
@@ -25,13 +26,12 @@ public class InMemoryAuthService implements AuthService {
     }
 
     @Override
-    public void start() {
-        System.out.println("Auth service started!");
+    public void start() { Logging.log.info("Auth service started!");
     }
 
     @Override
     public void stop() {
-        System.out.println("Auth service stopped");
+        Logging.log.info("Auth service stopped");
     }
 
     @Override
